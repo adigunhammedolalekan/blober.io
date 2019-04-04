@@ -73,3 +73,9 @@ func (b *Blob) PopulateDownloadURL() {
 func (b *Blob) BlobDownloadURL() string {
 	return fmt.Sprintf("%s%s%s", "http://blober.io/", b.App.UniqueId(), b.Hash)
 }
+
+type UploadMultipleResponse struct {
+	SuccessCount int64 `json:"success_count"`
+	FailureCount int64 `json:"failure_count"`
+	Blobs interface{} `json:"blobs"`
+}

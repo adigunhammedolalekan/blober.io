@@ -67,7 +67,13 @@ func BadRequestResponse(w http.ResponseWriter)  {
 
 type NotFoundHandler struct {}
 
+type MethodNotAllowedHandler struct {}
+
 func (*NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
-	JSON(w, 404, &Response{Error: true, Message: "That address is not found on this server"})
+	JSON(w, http.StatusNotFound, &Response{Error: true, Message: "That address is not found on this server"})
+}
+
+func (*MethodNotAllowedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	JSON(w, http.StatusMethodNotAllowed, &Response{Error: true, Message: "Method not allowed"})
 }
 

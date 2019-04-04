@@ -12,6 +12,8 @@ import (
 	"strconv"
 )
 
+var maxMemory int64 = 32 << 20
+
 type AppHandler struct {
 	store *store.SessionStore
 	blobStore *store.BlobStore
@@ -131,6 +133,74 @@ func (handler *AppHandler) UploadBlobHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	JSON(w, 200, &Response{Error: false, Message: "success", Data: blob})
+}
+
+func (handler *AppHandler) UploadMultipleBlobsHandler(w http.ResponseWriter, r *http.Request) {
+	key := ParseAuthorizationKey(r)
+	if key == "" || len(key) < 20 {
+		UnAuthorizedResponse(w)
+		return
+	}
+
+	account, err := handler.store.Get(key[:20])
+	if err != nil {
+		UnAuthorizedResponse(w)
+		return
+	}
+
+	cred := account.Cred
+	if cred.PrivateAccessKey != key && cred.PublicAccessKey != key {
+		UnAuthorizedResponse(w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	appName := vars["appName"]
+	if appName == "" {
+		BadRequestResponse(w)
+		return
+	}
+
+	err = r.ParseMultipartForm(maxMemory)
+	if err != nil {
+		BadRequestResponse(w)
+		return
+	}
+
+	errorCount := 0
+	successCount := 0
+
+	blobs := make([]*models.Blob, 0)
+	files := r.MultipartForm.File["files[]"]
+	isPrivate := r.FormValue("private") == "true"
+	for _, value := range files {
+
+		isError := 0
+		file, err := value.Open()
+		if err != nil {
+			log.Printf("failed to process upload, %v", err)
+			isError = 1
+			continue
+		}
+
+		blob, err := handler.repo.UploadBlob(account.ID, appName, isPrivate, file)
+		if err != nil {
+			log.Printf("failed to process upload, %v", err)
+			isError = 1
+			continue
+		}
+
+		if isError != 0 {
+			errorCount += isError
+		}else {
+			blobs = append(blobs, blob)
+			successCount += 1
+		}
+	}
+
+	response := &models.UploadMultipleResponse{SuccessCount:int64(successCount),
+		FailureCount:int64(errorCount), Blobs: blobs}
+	JSON(w, 200, &Response{Error:false, Message:"success", Data: response})
 }
 
 func (handler *AppHandler) DownloadBlobHandler(w http.ResponseWriter, r *http.Request) {
