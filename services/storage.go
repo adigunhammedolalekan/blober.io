@@ -2,6 +2,7 @@ package services
 
 import (
 	"blober.io/models"
+	"blober.io/store"
 	"bytes"
 	"crypto/md5"
 	"fmt"
@@ -15,12 +16,14 @@ import (
 
 type StorageService struct {
 	client *minio.Client
+	store *store.BlobStore
 }
 
 type Option struct {
 	AccessKey string
 	SecretKey string
 	Host string
+	Store *store.BlobStore
 }
 
 func NewStorageService(opt *Option) (*StorageService, error) {
@@ -29,7 +32,7 @@ func NewStorageService(opt *Option) (*StorageService, error) {
 		return nil, err
 	}
 
-	return &StorageService{client:client}, nil
+	return &StorageService{client:client, store:opt.Store}, nil
 }
 
 func (service *StorageService) CreateBucketForApp(app *models.App) error {
@@ -38,7 +41,7 @@ func (service *StorageService) CreateBucketForApp(app *models.App) error {
 	return service.client.MakeBucket(bucketName, location)
 }
 
-func (service *StorageService) UploadBlob(app *models.App, body io.Reader) (*models.Blob, error) {
+func (service *StorageService) UploadBlob(app *models.App, isPrivate bool, body io.Reader) (*models.Blob, error) {
 	bucketName := strings.ToLower(app.UniqueId())
 	fileName := randomMD5()
 
@@ -56,7 +59,26 @@ func (service *StorageService) UploadBlob(app *models.App, body io.Reader) (*mod
 		return nil, err
 	}
 
-	return models.NewBlob(fileName, app, size), nil
+	blob := models.NewBlob(fileName, contentType, app, size)
+	blob.IsPrivate = isPrivate
+	key := fmt.Sprintf("%s%s", bucketName, fileName)
+	err = service.store.Set(key, blob)
+	if err != nil {
+		log.Printf("failed to cache blob, %v", err)
+		return nil, err
+	}
+
+	return blob, nil
+}
+
+func (service *StorageService) GetFile(appName, hash string) (io.Reader, error) {
+	bucketName := strings.ToLower(appName)
+	return service.client.GetObject(bucketName, hash, minio.GetObjectOptions{})
+}
+
+func (service *StorageService) GetBlob(appName, hash string) (models.Blob, error) {
+	key := fmt.Sprintf("%s%s", strings.ToLower(appName), hash)
+	return service.store.Get(key)
 }
 
 func randomMD5() string {

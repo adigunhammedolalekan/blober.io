@@ -21,7 +21,10 @@ type Blob struct {
 	AppId uint `json:"app_id"`
 	Hash string `json:"hash"`
 	Size int64 `json:"size"`
+	ContentType string `json:"content_type"`
 	DownloadURL string `json:"download_url"`
+	AppName string `json:"app_name"`
+	IsPrivate bool `json:"is_private"`
 
 	App *App `json:"-" gorm:"-" sql:"-"`
 }
@@ -46,17 +49,17 @@ func (a *App) Validate() error {
 
 // UniqueId returns a unique identifier for this app.
 // useful for creating minio buckets
-// unique id is form by {appname--username}
 func (a *App) UniqueId() string {
-	return fmt.Sprintf("%s%s", a.Name, a.Account.EmailUsername())
+	return fmt.Sprintf("%s", a.Name)
 }
 
 // NewBlob create a new blob
-func NewBlob(hash string, app *App, size int64) *Blob {
+func NewBlob(hash, contentType string, app *App, size int64) *Blob {
 	b := &Blob{
-		Hash: hash, AppId:app.ID, Size:size, App:app,
+		Hash: hash, ContentType: contentType, AppId:app.ID, Size:size, App:app,
 	}
 
+	b.AppName = app.Name
 	b.PopulateDownloadURL()
 	return b
 }

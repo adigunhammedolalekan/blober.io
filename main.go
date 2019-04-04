@@ -33,6 +33,11 @@ func main() {
 		log.Fatalf("failed to open session store %v, quiting...", err)
 	}
 
+	blobStore, err := store.NewBlobStore()
+	if err != nil {
+		log.Fatalf("failed to open blob store, %v", err)
+	}
+
 	defer func() {
 		err := db.Close()
 		if err != nil {
@@ -43,12 +48,18 @@ func main() {
 		if err != nil {
 			log.Printf("failed to close session store, %v", err)
 		}
+
+		err = blobStore.Close()
+		if err != nil {
+			log.Printf("failed to close blob store, %v", err)
+		}
 	}()
 
 	storage, err := services.NewStorageService(&services.Option{
 		AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
 		SecretKey: os.Getenv("MINIO_SECRET_KEY"),
 		Host: os.Getenv("MINIO_HOST"),
+		Store:blobStore,
 	})
 
 	if err != nil {
@@ -58,7 +69,7 @@ func main() {
 	accountRepo := repos.NewAccountRepository(sessionStore, db)
 	appRepo := repos.NewAppRepository(db, accountRepo, storage)
 	accountHandler := handlers.NewAccountHandler(accountRepo)
-	appHandler := handlers.NewAppHandler(sessionStore, appRepo)
+	appHandler := handlers.NewAppHandler(sessionStore, blobStore, appRepo)
 
 	router := mux.NewRouter()
 	router.NotFoundHandler = &handlers.NotFoundHandler{}
@@ -68,6 +79,8 @@ func main() {
 	router.HandleFunc("/app/new", appHandler.CreateNewAppHandler).Methods("POST")
 	router.HandleFunc("/me/apps", appHandler.GetAccountAppsHandler).Methods("GET")
 	router.HandleFunc("/{appName}/upload", appHandler.UploadBlobHandler).Methods("POST")
+	router.HandleFunc("/{appName}/{hash}", appHandler.DownloadBlobHandler).Methods("GET")
+	router.HandleFunc("/apps/{appId}/blobs/{page}", appHandler.GetAppBlobs).Methods("GET")
 
 	port := os.Getenv("PORT")
 	if port == "" {

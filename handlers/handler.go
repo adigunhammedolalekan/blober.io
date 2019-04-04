@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -41,17 +42,17 @@ func ParseAuthorizationKey(r *http.Request) string {
 		return key
 	}
 
-	cookie, err := r.Cookie("X-Blober-ID")
-	if err != nil {
-		return ""
-	}
-
 	query := r.URL.Query()
+	fmt.Println(query)
 	key = query.Get("bloberId")
 	if key != "" {
 		return key
 	}
 
+	cookie, err := r.Cookie("X-Blober-ID")
+	if err != nil {
+		return ""
+	}
 	key = cookie.Value
 	if key != "" {
 		return key

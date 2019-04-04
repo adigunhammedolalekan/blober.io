@@ -9,6 +9,8 @@ import (
 	"log"
 )
 
+var Limit int64 = 20
+
 type AppRepository struct {
 	db *gorm.DB
 	account *AccountRepository
@@ -21,7 +23,7 @@ func NewAppRepository(db *gorm.DB, account *AccountRepository, storage *services
 
 func (repo *AppRepository) CreateNewApp(account uint, name string) (*models.App, error)  {
 	existingApp := repo.GetAppByAttr("name", name)
-	if existingApp != nil && existingApp.AccountId == account {
+	if existingApp != nil {
 		return nil, errors.New("an app with that name already exists")
 	}
 
@@ -62,14 +64,14 @@ func (repo *AppRepository) CreateNewApp(account uint, name string) (*models.App,
 	return app, nil
 }
 
-func (repo *AppRepository) UploadBlob(account uint, appName string, body io.Reader) (*models.Blob, error) {
+func (repo *AppRepository) UploadBlob(account uint, appName string, private bool, body io.Reader) (*models.Blob, error) {
 
 	app := repo.GetAppByName(account, appName)
 	if app == nil {
 		return nil, errors.New("app not found")
 	}
 
-	blob, err := repo.storage.UploadBlob(app, body)
+	blob, err := repo.storage.UploadBlob(app, private, body)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +93,22 @@ func (repo *AppRepository) GetAccountApps(accountId uint) []*models.App {
 	return data
 }
 
+func (repo *AppRepository) DownloadBlob(appName, hash string) (io.Reader, *models.Blob, error) {
+	blob, err := repo.storage.GetBlob(appName, hash)
+	if err != nil {
+		log.Printf("failed to get blob, %v", err)
+		return nil, nil, err
+	}
+
+	file, err := repo.storage.GetFile(appName, hash)
+	if err != nil {
+		log.Printf("failed to get file from minio, %v", err)
+		return nil, nil, err
+	}
+
+	return file, &blob, nil
+}
+
 func (repo *AppRepository) GetAppByName(account uint, appName string) *models.App {
 	app := &models.App{}
 	err := repo.db.Table("apps").Where("account_id = ? AND name = ?", account, appName).First(app).Error
@@ -104,6 +122,7 @@ func (repo *AppRepository) GetAppByName(account uint, appName string) *models.Ap
 	return app
 }
 
+
 func (repo *AppRepository) GetAppByAttr(attr string, value interface{}) *models.App {
 	app := &models.App{}
 	err := repo.db.Table("apps").Where(attr + " = ?", value).First(app).Error
@@ -112,4 +131,15 @@ func (repo *AppRepository) GetAppByAttr(attr string, value interface{}) *models.
 	}
 
 	return app
+}
+
+func (repo *AppRepository) GetAppBlobs(appId uint, page int64) []*models.Blob {
+	data := make([]*models.Blob, 0)
+	err := repo.db.Table("blobs").Where("app_id = ?", appId).Offset(page * Limit).Limit(Limit).
+		Find(&data).Error
+	if err != nil {
+		return nil
+	}
+
+	return data
 }
