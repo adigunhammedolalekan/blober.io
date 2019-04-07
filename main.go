@@ -88,7 +88,7 @@ func main() {
 	router.HandleFunc("/me/apps", appHandler.GetAccountAppsHandler).Methods("GET")
 	router.HandleFunc("/{appName}/upload", appHandler.UploadBlobHandler).Methods("POST")
 	router.HandleFunc("/{appName}/uploads", appHandler.UploadMultipleBlobsHandler).Methods("POST")
-	router.HandleFunc("/{appName}/{hash}", appHandler.DownloadBlobHandler).Methods("GET")
+	router.HandleFunc("/{appName}/{hash}/download", appHandler.DownloadBlobHandler).Methods("GET")
 	router.HandleFunc("/apps/{appId}/blobs/{page}", appHandler.GetAppBlobs).Methods("GET")
 
 	port := os.Getenv("PORT")

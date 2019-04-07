@@ -5,6 +5,7 @@ import (
 	"blober.io/repos"
 	"blober.io/store"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"io"
 	"log"
@@ -12,7 +13,7 @@ import (
 	"strconv"
 )
 
-var maxMemory int64 = 32 << 20
+var maxMemory int64 = 1024 << 20
 
 type AppHandler struct {
 	store *store.SessionStore
@@ -104,7 +105,7 @@ func (handler *AppHandler) UploadBlobHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	file, _, err := r.FormFile("file_data")
+	file, header, err := r.FormFile("file_data")
 	if err != nil {
 		BadRequestResponse(w)
 		return
@@ -126,7 +127,7 @@ func (handler *AppHandler) UploadBlobHandler(w http.ResponseWriter, r *http.Requ
 
 	private := r.FormValue("private")
 	isPrivate := private == "true"
-	blob, err := handler.repo.UploadBlob(account.ID, appName, isPrivate, file)
+	blob, err := handler.repo.UploadBlob(account.ID, appName, isPrivate, header)
 	if err != nil {
 		JSON(w, 200, &Response{Error: true, Message: err.Error()})
 		return
@@ -172,34 +173,27 @@ func (handler *AppHandler) UploadMultipleBlobsHandler(w http.ResponseWriter, r *
 
 	blobs := make([]*models.Blob, 0)
 	files := r.MultipartForm.File["files[]"]
+	if len(files) == 0 {
+		JSON(w, 400, &Response{Error: true, Message: "no file found"})
+		return
+	}
+
 	isPrivate := r.FormValue("private") == "true"
 	for _, value := range files {
 
-		isError := 0
-		file, err := value.Open()
+		blob, err := handler.repo.UploadBlob(account.ID, appName, isPrivate, value)
 		if err != nil {
 			log.Printf("failed to process upload, %v", err)
-			isError = 1
+			errorCount += 1
 			continue
 		}
 
-		blob, err := handler.repo.UploadBlob(account.ID, appName, isPrivate, file)
-		if err != nil {
-			log.Printf("failed to process upload, %v", err)
-			isError = 1
-			continue
-		}
-
-		if isError != 0 {
-			errorCount += isError
-		}else {
-			blobs = append(blobs, blob)
-			successCount += 1
-		}
+		blobs = append(blobs, blob)
+		successCount += 1
 	}
 
 	response := &models.UploadMultipleResponse{SuccessCount:int64(successCount),
-		FailureCount:int64(errorCount), Blobs: blobs}
+		FailureCount: int64(errorCount), Blobs: blobs}
 	JSON(w, 200, &Response{Error:false, Message:"success", Data: response})
 }
 
@@ -220,8 +214,7 @@ func (handler *AppHandler) DownloadBlobHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	if !blob.IsPrivate {
-		WriteHeaderInfo(w,
-			map[string]string{"Content-Type": blob.ContentType, "Content-Disposition" : "attachment;"})
+		WriteHeaderInfo(w, blob)
 		_, err := io.Copy(w, file)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -246,8 +239,7 @@ func (handler *AppHandler) DownloadBlobHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	WriteHeaderInfo(w,
-		map[string]string{"Content-Type": blob.ContentType, "Content-Disposition" : "attachment;"})
+	WriteHeaderInfo(w, blob)
 	_, err = io.Copy(w, file)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -300,7 +292,9 @@ func (handler *AppHandler) GetAppBlobs(w http.ResponseWriter, r *http.Request) {
 	JSON(w, 200, &Response{Error: false, Message:"success", Data:data})
 }
 
-func WriteHeaderInfo(w http.ResponseWriter, headers map[string]string) {
+func WriteHeaderInfo(w http.ResponseWriter, blob *models.Blob) {
+	headers := map[string]string{"Content-Type": blob.ContentType, "Content-Disposition" :
+	fmt.Sprintf("attachment; filename=%s", blob.Filename)}
 	for key, val := range headers {
 		w.Header().Add(key, val)
 	}

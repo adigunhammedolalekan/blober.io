@@ -21,6 +21,7 @@ type Blob struct {
 	AppId uint `json:"app_id"`
 	Hash string `json:"hash"`
 	Size int64 `json:"size"`
+	Filename string `json:"filename"`
 	ContentType string `json:"content_type"`
 	DownloadURL string `json:"download_url"`
 	AppName string `json:"app_name"`

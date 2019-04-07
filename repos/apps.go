@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"io"
 	"log"
+	"mime/multipart"
 )
 
 var Limit int64 = 20
@@ -64,18 +65,24 @@ func (repo *AppRepository) CreateNewApp(account uint, name string) (*models.App,
 	return app, nil
 }
 
-func (repo *AppRepository) UploadBlob(account uint, appName string, private bool, body io.Reader) (*models.Blob, error) {
+func (repo *AppRepository) UploadBlob(account uint, appName string, private bool, body *multipart.FileHeader) (*models.Blob, error) {
 
 	app := repo.GetAppByName(account, appName)
 	if app == nil {
 		return nil, errors.New("app not found")
 	}
 
-	blob, err := repo.storage.UploadBlob(app, private, body)
+	file, err := body.Open()
 	if err != nil {
 		return nil, err
 	}
 
+	blob, err := repo.storage.UploadBlob(app, private, file)
+	if err != nil {
+		return nil, err
+	}
+
+	blob.Filename = body.Filename
 	if err := repo.db.Create(blob).Error; err != nil {
 		return nil, err
 	}
