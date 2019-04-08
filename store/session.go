@@ -8,6 +8,14 @@ import (
 	"os"
 )
 
+
+// SessionStore caches accounts struct data
+// for easy access during authentication,
+// because we are using either private or public
+// key for authentication, JWT might not be useful.
+// it should provide faster access and be more
+// resources efficient than say a remote SQL database.
+// It is back by a key/value store(BadgerDB)
 type SessionStore struct {
 	db *badger.DB
 }
@@ -63,6 +71,7 @@ func (s *SessionStore) Get(key string) (models.Account, error) {
 	return account, err
 }
 
+// Close closes underling badgerDB
 func (s *SessionStore) Close() error {
 	return s.db.Close()
 }

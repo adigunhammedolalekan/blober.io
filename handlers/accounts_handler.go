@@ -6,15 +6,18 @@ import (
 	"encoding/json"
 	"net/http"
 )
-
+// AccountHandler handles all account related
+// http requests
 type AccountHandler struct {
 	repo *repos.AccountRepository
 }
 
+// NewAccountHandler creates a new AccountHandler
 func NewAccountHandler(repo *repos.AccountRepository) *AccountHandler {
 	return &AccountHandler{repo:repo}
 }
 
+// CreateNewAccountHandler handles create account requests
 func (handler *AccountHandler) CreateNewAccountHandler(w http.ResponseWriter, r *http.Request) {
 	// parse JSON body
 	payload := &models.Account{}
@@ -36,6 +39,7 @@ func (handler *AccountHandler) CreateNewAccountHandler(w http.ResponseWriter, r 
 	JSON(w, 201, &Response{Error: false, Message: "account created", Data: newAccount})
 }
 
+// AuthenticateAccountHandler handles account authentication request
 func (handler *AccountHandler) AuthenticateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	// parse JSON body
 	payload := &models.Account{}

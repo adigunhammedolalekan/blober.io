@@ -6,6 +6,8 @@ import (
 )
 import _ "github.com/jinzhu/gorm/dialects/postgres"
 
+// CreateDatabaseConnection creates connection
+// to a PostgresDB and performs migration
 func CreateDatabaseConnection(connectUri string) (*gorm.DB, error) {
 	db, err := gorm.Open("postgres", connectUri)
 	if err != nil {

@@ -58,20 +58,24 @@ func (a *Account) Validate() error {
 
 // Credential is an account credential
 type Credential struct {
-	PrivateAccessKey string
-	PublicAccessKey string
-	ExpiresIn time.Time
+	PrivateAccessKey string `json:"private_access_key"`
+	PublicAccessKey string `json:"public_access_key"`
+	ExpiresIn time.Time `json:"expires_in"`
 }
 
 // NewCredential generates a unique, random private
 // and public key
+// critical app features like creating app and fetching lists
+// of created apps requires a private key, while uploading files
+// requires either private or public key
+// public key is useful when uploading files directly from clients(Js, Android, iOS etc)
 func NewCredential() *Credential {
 	prefix := randomMD5()[:16]
 
 	private := fmt.Sprintf("priv%s%s", prefix, randomSHA256())
 	public := fmt.Sprintf("pub%s%s", prefix, randomSHA256())
 	return &Credential{PrivateAccessKey: private, PublicAccessKey: public,
-		ExpiresIn: time.Now().Add(time.Hour * 25 *5 /*5 days*/)}
+		ExpiresIn: time.Now().Add(time.Hour * 25 * 5 /*5 days*/)}
 }
 
 // StripKey returns the database key used
@@ -83,16 +87,20 @@ func (c *Credential) StripKey() string {
 
 	return c.PublicAccessKey[:20]
 }
-
+// Username returns a unique identifier for
+// this account. (username+Id)
 func (a *Account) Username() string {
 	parts := strings.Split(a.Email, "@")
 	return fmt.Sprintf("%s%d", parts[0], a.ID)
 }
-
+// EmailUsername returns username part of
+// an email address
 func (a *Account) EmailUsername() string {
 	return strings.Split(a.Email, "@")[0]
 }
 
+// String returns json marshalled string
+// of this account
 func (a *Account) String() string {
 	d, err := json.Marshal(a)
 	if err != nil {
@@ -101,6 +109,7 @@ func (a *Account) String() string {
 
 	return string(d)
 }
+
 
 func randomSHA256() string {
 	s := uuid.New().String()

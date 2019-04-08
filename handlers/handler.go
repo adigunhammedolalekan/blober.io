@@ -32,10 +32,21 @@ func JSON(w http.ResponseWriter, code int, r *Response) {
 	w.Write(data)
 }
 
+// UnAuthorizedResponse responds to UnAuthorized requests
+// with http code 403 UnAuthorized
 func UnAuthorizedResponse(w http.ResponseWriter) {
 	JSON(w, 403, &Response{Error: true, Message: "Unauthorized request"})
 }
 
+// BadRequestResponse responds to unexpected errors
+// when processing requests
+func BadRequestResponse(w http.ResponseWriter)  {
+	JSON(w, 400, &Response{Error: true, Message: "bad request"})
+}
+
+// ParseAuthorizationKey gets authentication data from
+// a request.
+// It checks request's header, query parameters and cookie data
 func ParseAuthorizationKey(r *http.Request) string {
 	key := r.Header.Get("X-Blober-ID")
 	if key != "" {
@@ -59,10 +70,6 @@ func ParseAuthorizationKey(r *http.Request) string {
 	}
 
 	return ""
-}
-
-func BadRequestResponse(w http.ResponseWriter)  {
-	JSON(w, 400, &Response{Error: true, Message: "bad request"})
 }
 
 type NotFoundHandler struct {}

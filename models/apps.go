@@ -65,16 +65,19 @@ func NewBlob(hash, contentType string, app *App, size int64) *Blob {
 	return b
 }
 
+// PopulateDownloadURL formats blob download URL
 func (b *Blob) PopulateDownloadURL() {
-	b.DownloadURL = fmt.Sprintf("%s%s%s%s", "http://blober.io/", b.App.UniqueId(), "/", b.Hash)
+	b.DownloadURL = fmt.Sprintf("%s%s%s%s", "http://blober.io/res/", b.App.UniqueId(), "/", b.Hash)
 }
 
 // BlobDownloadURL forms a file download url
 // useful to download files directly from clients
 func (b *Blob) BlobDownloadURL() string {
-	return fmt.Sprintf("%s%s%s", "http://blober.io/", b.App.UniqueId(), b.Hash)
+	return fmt.Sprintf("%s%s%s", "http://blober.io/res/", b.App.UniqueId(), b.Hash)
 }
 
+// UploadMultipleResponse holds response info for when
+// multiple files are uploaded at once
 type UploadMultipleResponse struct {
 	SuccessCount int64 `json:"success_count"`
 	FailureCount int64 `json:"failure_count"`

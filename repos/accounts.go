@@ -92,6 +92,7 @@ func (repo *AccountRepository) AuthenticateAccount(email, password string) (*mod
 	return account, nil
 }
 
+// GetAccountByAttr get accounts where attr == value
 func (repo *AccountRepository) GetAccountByAttr(attr string, value interface{}) *models.Account {
 	account := models.Account{}
 	err := repo.db.Table("accounts").Where(attr + " = ?", value).First(&account).Error

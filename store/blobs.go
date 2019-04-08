@@ -8,11 +8,16 @@ import (
 	"os"
 )
 
+// BlobStore caches Blob/File struct data
+// for easy access when being download,
+// it should provide faster access and be more
+// resources efficient than say a remote SQL database.
+// It is back by a key/value store(BadgerDB)
 type BlobStore struct {
 	db *badger.DB
 }
 
-//
+// NewBlobStore creates a new blobstore
 func NewBlobStore() (*BlobStore, error) {
 	opt := badger.DefaultOptions
 	opt.Dir = os.Getenv("DB_DIR") + "/blobs"
@@ -26,7 +31,9 @@ func NewBlobStore() (*BlobStore, error) {
 	return &BlobStore{db: db}, nil
 }
 
-
+// Set puts/caches a blob
+// key is unique for each blob
+// key in most cases equals appname+hash
 func (s *BlobStore) Set(key string, blob *models.Blob) error {
 	return s.db.Update(func(txn *badger.Txn) error {
 		b, err := json.Marshal(blob)
@@ -39,8 +46,7 @@ func (s *BlobStore) Set(key string, blob *models.Blob) error {
 	})
 }
 
-// Get retrieve an user's account details
-// mainly to perform authorization check
+// Get fetches a cached blob
 func (s *BlobStore) Get(key string) (models.Blob, error) {
 	var blob models.Blob
 	err := s.db.View(func(txn *badger.Txn) error {
@@ -62,6 +68,7 @@ func (s *BlobStore) Get(key string) (models.Blob, error) {
 	return blob, err
 }
 
+// Close underlying badgerDB
 func (s *BlobStore) Close() error {
 	return s.db.Close()
 }
