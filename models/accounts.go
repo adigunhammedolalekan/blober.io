@@ -73,7 +73,7 @@ func NewCredential() *Credential {
 	prefix := randomMD5()[:16]
 
 	private := fmt.Sprintf("priv%s%s", prefix, randomSHA256())
-	public := fmt.Sprintf("pub%s%s", prefix, randomSHA256())
+	public := fmt.Sprintf("publ%s%s", prefix, randomSHA256())
 	return &Credential{PrivateAccessKey: private, PublicAccessKey: public,
 		ExpiresIn: time.Now().Add(time.Hour * 25 * 5 /*5 days*/)}
 }
