@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -54,7 +53,6 @@ func ParseAuthorizationKey(r *http.Request) string {
 	}
 
 	query := r.URL.Query()
-	fmt.Println(query)
 	key = query.Get("bloberId")
 	if key != "" {
 		return key
@@ -64,6 +62,7 @@ func ParseAuthorizationKey(r *http.Request) string {
 	if err != nil {
 		return ""
 	}
+
 	key = cookie.Value
 	if key != "" {
 		return key
@@ -73,7 +72,6 @@ func ParseAuthorizationKey(r *http.Request) string {
 }
 
 type NotFoundHandler struct {}
-
 type MethodNotAllowedHandler struct {}
 
 func (*NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)  {

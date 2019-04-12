@@ -132,7 +132,7 @@ func (handler *AppHandler) UploadBlobHandler(w http.ResponseWriter, r *http.Requ
 	}()
 
 	// get the name of the app
-	// that owns the about to be saved app
+	// that owns the about to be saved file,
 	// returns a BadRequest response if this name
 	// is not present
 	vars := mux.Vars(r)
@@ -142,7 +142,8 @@ func (handler *AppHandler) UploadBlobHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// make the uploaded file private
+	// make the uploaded file private if specified
+	// by client.
 	// private files can only be downloaded
 	// with private keys
 	private := r.FormValue("private")

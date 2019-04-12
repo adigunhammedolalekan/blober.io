@@ -42,8 +42,6 @@ func main() {
 	}
 
 	defer func() {
-
-		log.Println("Closing app...")
 		err := db.Close()
 		if err != nil {
 			log.Printf("failed to close DB, %v", err)
@@ -65,7 +63,7 @@ func main() {
 		AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
 		SecretKey: os.Getenv("MINIO_SECRET_KEY"),
 		Host: os.Getenv("MINIO_HOST"),
-		Store:blobStore,
+		Store: blobStore,
 	})
 
 	if err != nil {

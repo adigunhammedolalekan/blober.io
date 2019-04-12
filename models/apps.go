@@ -73,7 +73,7 @@ func (b *Blob) PopulateDownloadURL() {
 // BlobDownloadURL forms a file download url
 // useful to download files directly from clients
 func (b *Blob) BlobDownloadURL() string {
-	return fmt.Sprintf("%s%s%s", "http://blober.io/res/", b.App.UniqueId(), b.Hash)
+	return fmt.Sprintf("%s%s%s%s", "http://blober.io/res/", b.App.UniqueId(), "/", b.Hash)
 }
 
 // UploadMultipleResponse holds response info for when

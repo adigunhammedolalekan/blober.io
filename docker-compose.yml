@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  database:
+    image: postgres:latest
+    container_name: postgres_db
+    volumes:
+      - data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+  minio:
+    image: minio/minio
+    container_name: minio_server
+    volumes:
+      - data:/mnt/data
+    ports:
+      - "9001:9001"
+
+  bloberio:
+    image: .
+    container_name: blober_io
+    depends_on:
+      - database
+      - minio
+    volumes:
+      - data:/var/blober
+
+volumes:
+  data:
+    external: true
