@@ -71,6 +71,10 @@ func ParseAuthorizationKey(r *http.Request) string {
 	return ""
 }
 
+func EchoHandler(w http.ResponseWriter, r *http.Request) {
+	JSON(w, 200, &Response{Error: false, Message: "Server is up!"})
+}
+
 type NotFoundHandler struct {}
 type MethodNotAllowedHandler struct {}
 

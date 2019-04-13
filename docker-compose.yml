@@ -4,28 +4,41 @@ services:
   database:
     image: postgres:latest
     container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: man
+      POSTGRES_DB: blober
+      PGDATA: /var/lib/postgresql/data/db
     volumes:
-      - data:/var/lib/postgresql
+      - data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   minio:
     image: minio/minio
     container_name: minio_server
+    command: server /mnt/data
+    restart: always
     volumes:
       - data:/mnt/data
     ports:
-      - "9001:9001"
+      - "9000:9000"
 
   bloberio:
-    image: .
+    build: .
     container_name: blober_io
+    restart: on-failure
     depends_on:
       - database
       - minio
+    links:
+      - database
+      - minio
+    ports:
+      - "9008:9008"
     volumes:
       - data:/var/blober
-
 volumes:
   data:
     external: true

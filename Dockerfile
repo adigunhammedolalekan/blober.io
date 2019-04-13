@@ -14,5 +14,5 @@ RUN apk update && \
 RUN go get .
 RUN cd /go/src && go build -o main
 
-EXPOSE 9001
+EXPOSE 9008
 ENTRYPOINT ["./main"]

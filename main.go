@@ -80,6 +80,7 @@ func main() {
 	router.NotFoundHandler = &handlers.NotFoundHandler{}
 	router.MethodNotAllowedHandler = &handlers.MethodNotAllowedHandler{}
 
+	router.HandleFunc("/echo", handlers.EchoHandler)
 	router.HandleFunc("/account/new", accountHandler.CreateNewAccountHandler).Methods("POST")
 	router.HandleFunc("/account/authenticate", accountHandler.AuthenticateAccountHandler).Methods("POST")
 	router.HandleFunc("/app/new", appHandler.CreateNewAppHandler).Methods("POST")
