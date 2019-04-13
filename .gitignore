@@ -1,2 +1,2 @@
-/bloberio-go
-/vendor
+.env
+bloberio-go/
