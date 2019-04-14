@@ -5,7 +5,6 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"testing"
-	"time"
 )
 
 var store *SessionStore
@@ -21,9 +20,6 @@ func init() {
 
 var (
 	account = &models.Account{FirstName: "Lekan", LastName: "Adigun"}
-	session = &Session{
-		ID: "1", Created: time.Now(), Account: account,
-	}
 )
 
 func TestSessionStore_Set(t *testing.T) {

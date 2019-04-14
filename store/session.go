@@ -4,7 +4,6 @@ import (
 	"blober.io/models"
 	"encoding/json"
 	"github.com/dgraph-io/badger"
-	"github.com/google/uuid"
 	"log"
 	"os"
 	"time"
@@ -29,13 +28,6 @@ type SessionStore struct {
 	db *badger.DB
 }
 
-// Session holds info about session
-type Session struct {
-	ID string `json:"id"`
-	Created time.Time `json:"created"`
-	Account *models.Account `json:"account"`
-}
-
 // NewSessionStore creates a new session store
 func NewSessionStore() (*SessionStore, error) {
 	opt := badger.DefaultOptions
@@ -54,9 +46,8 @@ func NewSessionStore() (*SessionStore, error) {
 
 // Set creates and store a new session
 func (s *SessionStore) Set(key string, account *models.Account) error {
-	session := &Session{ID: uuid.New().String(), Created: time.Now(), Account: account}
 	return s.db.Update(func(txn *badger.Txn) error {
-		b, err := json.Marshal(session)
+		b, err := json.Marshal(account)
 		if err != nil {
 			log.Printf("failed to marshall session %v", err)
 			return err
@@ -68,7 +59,7 @@ func (s *SessionStore) Set(key string, account *models.Account) error {
 
 // Get retrieve a stored session
 func (s *SessionStore) Get(key string) (models.Account, error) {
-	var session Session
+	var account models.Account
 	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))
 		if err != nil {
@@ -82,10 +73,10 @@ func (s *SessionStore) Get(key string) (models.Account, error) {
 			return err
 		}
 
-		return json.Unmarshal(value, &session)
+		return json.Unmarshal(value, &account)
 	})
 
-	return *session.Account, err
+	return account, err
 }
 
 // cleanUp do a sane, session cleanup.
@@ -121,18 +112,21 @@ func (s *SessionStore) doCleanUp() error {
 				continue
 			}
 
-			var sess Session
-			err = json.Unmarshal(bytes, sess)
+			var account models.Account
+			err = json.Unmarshal(bytes, &account)
 			if err != nil {
 				log.Printf("failed to get session data %v", err)
 			}
 
 			// has the session expired?
 			// delete it if it has
-			if d := sess.Created.Sub(time.Now()); d > sessionExpiration {
-				err = txn.Delete(key)
-				if err != nil {
-					log.Printf("failed to delete item, key = %s. Reason = %v", key, err)
+			cred := account.Cred
+			if cred != nil {
+				if d := cred.ExpiresIn.Sub(time.Now()); d > sessionExpiration {
+					err = txn.Delete(key)
+					if err != nil {
+						log.Printf("failed to delete item, key = %s. Reason = %v", key, err)
+					}
 				}
 			}
 		}
