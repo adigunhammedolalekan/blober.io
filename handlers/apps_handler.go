@@ -330,7 +330,7 @@ func (handler *AppHandler) GetAppBlobs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// another level of authentication
+	// another level of authorization
 	// makes sure the caller is the creator of this app
 	app := handler.repo.GetAppByAttr("id", uint(appId))
 	if app == nil {
@@ -344,7 +344,7 @@ func (handler *AppHandler) GetAppBlobs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := handler.repo.GetAppBlobs(uint(appId), int64(page))
-	JSON(w, 200, &Response{Error: false, Message:"success", Data:data})
+	JSON(w, 200, &Response{Error: false, Message: "success", Data: data})
 }
 
 func WriteHeaderInfo(w http.ResponseWriter, blob *models.Blob) {
