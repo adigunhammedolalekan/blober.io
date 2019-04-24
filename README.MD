@@ -1,5 +1,5 @@
 ## Blober.io
-A simple file storage http server built on-top Minio
+A simple file storage http API built on-top Minio
 
 ### About
 Blober is a simple http server that simplify application file management. Your apps can make http
@@ -8,17 +8,15 @@ The aim is to have a simple, easy to use file management service that can handle
 
 ### Motivation
 The easiest way to deploy REST API servers is to use PaaS like **Heroku**, storing files on these PaaS platform is not possible because
-of the ephemeral nature of their file systems. I want a simple http service that i can easily call to store files in a secure, most simplest way.
-Other services offering these features are focused on image/video transformations, what if all i want to do
-is to store videos and download them later, or even store just PDF file? the impression i have of these platforms is that they are not
-optimized/built to handle such files. So, i built blober to help store and retrieve files over http.
+of the ephemeral nature of their file systems. I wanted a simple http service that i can easily call to store files in a secure, most simplest way.
+Other services offering these features are focused on image/video transformations which sometimes does not fit my need(I may just want to upload a video/PDF/Doc file and have a simple URL to download them later)
 
 ## Installation
 
-### Step 1: Clone project
+### Step 1: Download
 `git clone github.com/adigunhammedolalekan/blober.io`
 
-### Step 2: Deploy locally with docker-compose
+### Step 2: Run locally with docker-compose
 
 `cd bloberio && docker-compose up`
 
