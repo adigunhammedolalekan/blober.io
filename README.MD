@@ -7,18 +7,18 @@ Blober is a simple http server that simplify application file management. Your a
 The aim is to have a simple, easy to use file management service that can handle file of any type or size.
 
 ### Motivation
-The easiest way to deploy REST API servers is to use PaaS like **Heroku**, storing files on these PaaS platform is not possible because
+The easiest way to deploy Web apps is to use PaaS like **Heroku**, storing files on these PaaS platform is not possible because
 of the ephemeral nature of their file systems. I wanted a simple http service that i can easily call to store files in a secure, most simplest way.
 Other services offering these features are focused on image/video transformations which sometimes does not fit my need(I may just want to upload a video/PDF/Doc file and have a simple URL to download them later)
 
 ## Installation
 
 ### Step 1: Download
-`git clone github.com/adigunhammedolalekan/blober.io`
+`git clone  https://github.com/adigunhammedolalekan/blober.io.git`
 
-### Step 2: Run locally with docker-compose
+### Step 2: Run locally with docker
 
-`cd bloberio && docker-compose up`
+`cd blober.io && docker-compose up`
 
 ### Step 3: API Usage
 
