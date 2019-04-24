@@ -128,3 +128,37 @@ You can deploy a single blober.io instance and create a new app for every one of
 }
 
 ```
+
+* Upload a file
+`curl -F 'file_data=@/home/adigun/Downloads/food.jpeg' -H 'X-Blober-ID:privfc9d59ff8fba0d5388031758f0610f0e1bdd93661374c867aa34baecbb8216105f9eb5fa15c0d35a' -X POST http://localhost:9008/FileShareApp/upload | json_pp`
+
+* Upload a file response
+```JSON
+{
+   "message" : "success",
+   "error" : false,
+   "data" : {
+      "filename" : "food.jpeg",
+      "content_type" : "image/jpeg",
+      "DeletedAt" : null,
+      "hash" : "1907a5418dddc44bffa8be6cacd7cc50",
+      "CreatedAt" : "2019-04-24T15:37:32.17130731Z",
+      "app_id" : 15,
+      "app_name" : "ChatApp",
+      "UpdatedAt" : "2019-04-24T15:37:32.17130731Z",
+      "is_private" : false,
+      "download_url" : "http://blober.io/res/ChatApp/1907a5418dddc44bffa8be6cacd7cc50",
+      "ID" : 10,
+      "size" : 7421
+   }
+}
+
+```
+
+* Download a file
+You can download a file using it `hash` and the `application name'
+Downloading the file we upload previously, we can use the name of the app and the hash returned as part of the upload response
+
+`http://localhost:9008/res/ChatApp/1907a5418dddc44bffa8be6cacd7cc50`
+
+You can also access a straightforward URL using `response.download_url`
