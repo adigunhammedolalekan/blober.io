@@ -16,19 +16,19 @@ var Limit int64 = 20
 // AppRepository encapsulates database
 // access dealing with apps
 type AppRepository struct {
-	db *gorm.DB
+	db      *gorm.DB
 	account *AccountRepository
 	storage *services.StorageService
 }
 
 // NewAppRepository creates new AppRepository
 func NewAppRepository(db *gorm.DB, account *AccountRepository, storage *services.StorageService) *AppRepository {
-	return &AppRepository{db:db, account: account, storage:storage}
+	return &AppRepository{db: db, account: account, storage: storage}
 }
 
 // CreateNewApp creates a new app
 // app must have a unique name across the platform
-func (repo *AppRepository) CreateNewApp(account uint, name string) (*models.App, error)  {
+func (repo *AppRepository) CreateNewApp(account uint, name string) (*models.App, error) {
 	// get existing app with the same name
 	existingApp := repo.GetAppByAttr("name", name)
 	if existingApp != nil {
@@ -155,7 +155,7 @@ func (repo *AppRepository) GetAppByName(account uint, appName string) *models.Ap
 // GetAppByAttr get app where attr == value
 func (repo *AppRepository) GetAppByAttr(attr string, value interface{}) *models.App {
 	app := &models.App{}
-	err := repo.db.Table("apps").Where(attr + " = ?", value).First(app).Error
+	err := repo.db.Table("apps").Where(attr+" = ?", value).First(app).Error
 	if err != nil {
 		return nil
 	}

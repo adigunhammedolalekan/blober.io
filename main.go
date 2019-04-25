@@ -62,8 +62,8 @@ func main() {
 	storage, err := services.NewStorageService(&services.StorageServiceOption{
 		AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
 		SecretKey: os.Getenv("MINIO_SECRET_KEY"),
-		Host: os.Getenv("MINIO_HOST"),
-		Store: blobStore,
+		Host:      os.Getenv("MINIO_HOST"),
+		Store:     blobStore,
 	})
 
 	if err != nil {

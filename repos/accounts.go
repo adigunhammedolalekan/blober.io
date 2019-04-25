@@ -13,12 +13,12 @@ import (
 // access dealing with user accounts
 type AccountRepository struct {
 	store *store.SessionStore // session store
-	db *gorm.DB               // database handle
+	db    *gorm.DB            // database handle
 }
 
 // NewAccountRepository creates a new repository
 func NewAccountRepository(s *store.SessionStore, db *gorm.DB) *AccountRepository {
-	return &AccountRepository{store:s, db:db}
+	return &AccountRepository{store: s, db: db}
 }
 
 // CreateNewAccount create a new user/developer account
@@ -95,7 +95,7 @@ func (repo *AccountRepository) AuthenticateAccount(email, password string) (*mod
 // GetAccountByAttr get accounts where attr == value
 func (repo *AccountRepository) GetAccountByAttr(attr string, value interface{}) *models.Account {
 	account := models.Account{}
-	err := repo.db.Table("accounts").Where(attr + " = ?", value).First(&account).Error
+	err := repo.db.Table("accounts").Where(attr+" = ?", value).First(&account).Error
 	if err != nil {
 		return nil
 	}
@@ -123,4 +123,3 @@ func (repo *AccountRepository) comparePassword(hashed, plain string) bool {
 
 	return true
 }
-

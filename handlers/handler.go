@@ -7,9 +7,9 @@ import (
 
 // Response is the JSON response format
 type Response struct {
-	Error bool `json:"error"`
-	Message string `json:"message"`
-	Data interface{} `json:"data"`
+	Error   bool        `json:"error"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // JSON format and output a json response
@@ -39,7 +39,7 @@ func UnAuthorizedResponse(w http.ResponseWriter) {
 
 // BadRequestResponse responds to unexpected errors
 // when processing requests
-func BadRequestResponse(w http.ResponseWriter)  {
+func BadRequestResponse(w http.ResponseWriter) {
 	JSON(w, 400, &Response{Error: true, Message: "bad request"})
 }
 
@@ -75,14 +75,13 @@ func EchoHandler(w http.ResponseWriter, r *http.Request) {
 	JSON(w, 200, &Response{Error: false, Message: "Server is up!"})
 }
 
-type NotFoundHandler struct {}
-type MethodNotAllowedHandler struct {}
+type NotFoundHandler struct{}
+type MethodNotAllowedHandler struct{}
 
-func (*NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
+func (*NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	JSON(w, http.StatusNotFound, &Response{Error: true, Message: "That address is not found on this server"})
 }
 
 func (*MethodNotAllowedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	JSON(w, http.StatusMethodNotAllowed, &Response{Error: true, Message: "Method not allowed"})
 }
-

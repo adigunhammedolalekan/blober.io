@@ -28,9 +28,9 @@ var ErrInvalidPassword = errors.New("Invalid password. too weak")
 type Account struct {
 	gorm.Model
 	FirstName string `json:"first_name"`
-	LastName string `json:"last_name"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 
 	Cred *Credential `json:"cred" gorm:"-" sql:"-"`
 }
@@ -58,9 +58,9 @@ func (a *Account) Validate() error {
 
 // Credential is an account credential
 type Credential struct {
-	PrivateAccessKey string `json:"private_access_key"`
-	PublicAccessKey string `json:"public_access_key"`
-	ExpiresIn time.Time `json:"expires_in"`
+	PrivateAccessKey string    `json:"private_access_key"`
+	PublicAccessKey  string    `json:"public_access_key"`
+	ExpiresIn        time.Time `json:"expires_in"`
 }
 
 // NewCredential generates a unique, random private
@@ -87,12 +87,14 @@ func (c *Credential) StripKey() string {
 
 	return c.PublicAccessKey[:20]
 }
+
 // Username returns a unique identifier for
 // this account. (username+Id)
 func (a *Account) Username() string {
 	parts := strings.Split(a.Email, "@")
 	return fmt.Sprintf("%s%d", parts[0], a.ID)
 }
+
 // EmailUsername returns username part of
 // an email address
 func (a *Account) EmailUsername() string {
@@ -109,7 +111,6 @@ func (a *Account) String() string {
 
 	return string(d)
 }
-
 
 func randomSHA256() string {
 	s := uuid.New().String()

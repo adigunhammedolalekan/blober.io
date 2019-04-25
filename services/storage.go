@@ -18,7 +18,7 @@ import (
 // and a badgerDB backed blob structs store
 type StorageService struct {
 	client *minio.Client
-	store *store.BlobStore
+	store  *store.BlobStore
 }
 
 // StorageServiceOption holds minio setup access keys
@@ -26,8 +26,8 @@ type StorageService struct {
 type StorageServiceOption struct {
 	AccessKey string
 	SecretKey string
-	Host string
-	Store *store.BlobStore
+	Host      string
+	Store     *store.BlobStore
 }
 
 // NewStorageService creates a new StorageService from passed
@@ -38,7 +38,7 @@ func NewStorageService(opt *StorageServiceOption) (*StorageService, error) {
 		return nil, err
 	}
 
-	return &StorageService{client:client, store:opt.Store}, nil
+	return &StorageService{client: client, store: opt.Store}, nil
 }
 
 // CreateBucketForApp creates a minio bucket for a created app

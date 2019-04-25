@@ -9,8 +9,8 @@ import (
 // App is an application created by a blober.io user
 type App struct {
 	gorm.Model
-	Name string `json:"name"`
-	AccountId uint `json:"account_id"`
+	Name      string `json:"name"`
+	AccountId uint   `json:"account_id"`
 
 	Account *Account `json:"account" sql:"-" gorm:"-"`
 }
@@ -18,21 +18,21 @@ type App struct {
 // Blob is an uploaded file on blober.io
 type Blob struct {
 	gorm.Model
-	AppId uint `json:"app_id"`
-	Hash string `json:"hash"`
-	Size int64 `json:"size"`
-	Filename string `json:"filename"`
+	AppId       uint   `json:"app_id"`
+	Hash        string `json:"hash"`
+	Size        int64  `json:"size"`
+	Filename    string `json:"filename"`
 	ContentType string `json:"content_type"`
 	DownloadURL string `json:"download_url"`
-	AppName string `json:"app_name"`
-	IsPrivate bool `json:"is_private"`
+	AppName     string `json:"app_name"`
+	IsPrivate   bool   `json:"is_private"`
 
 	App *App `json:"-" gorm:"-" sql:"-"`
 }
 
 // NewApp creates new app
 func NewApp(name string, account uint) *App {
-	return &App{Name:name, AccountId: account}
+	return &App{Name: name, AccountId: account}
 }
 
 // Validate validates app request body
@@ -57,7 +57,7 @@ func (a *App) UniqueId() string {
 // NewBlob create a new blob
 func NewBlob(hash, contentType string, app *App, size int64) *Blob {
 	b := &Blob{
-		Hash: hash, ContentType: contentType, AppId:app.ID, Size:size, App:app,
+		Hash: hash, ContentType: contentType, AppId: app.ID, Size: size, App: app,
 	}
 
 	b.AppName = app.Name
@@ -79,7 +79,7 @@ func (b *Blob) BlobDownloadURL() string {
 // UploadMultipleResponse holds response info for when
 // multiple files are uploaded at once
 type UploadMultipleResponse struct {
-	SuccessCount int64 `json:"success_count"`
-	FailureCount int64 `json:"failure_count"`
-	Blobs interface{} `json:"blobs"`
+	SuccessCount int64       `json:"success_count"`
+	FailureCount int64       `json:"failure_count"`
+	Blobs        interface{} `json:"blobs"`
 }

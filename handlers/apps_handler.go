@@ -19,14 +19,14 @@ var maxMemory int64 = 1024 << 20
 // AppHandler handles all app related
 // http requests
 type AppHandler struct {
-	store *store.SessionStore
+	store     *store.SessionStore
 	blobStore *store.BlobStore
-	repo *repos.AppRepository
+	repo      *repos.AppRepository
 }
 
 // NewAppHandler creates a new AppHandler
 func NewAppHandler(store *store.SessionStore, blobStore *store.BlobStore, repo *repos.AppRepository) *AppHandler {
-	return &AppHandler{repo:repo, blobStore:blobStore, store:store}
+	return &AppHandler{repo: repo, blobStore: blobStore, store: store}
 }
 
 // CreateNewAppHandler handles requests to create a new app
@@ -71,9 +71,10 @@ func (handler *AppHandler) CreateNewAppHandler(w http.ResponseWriter, r *http.Re
 
 	JSON(w, 201, &Response{Error: false, Message: "app created", Data: newApp})
 }
+
 // GetAccountAppsHandler handles request to
 // fetch authenticated account's created apps
-func (handler *AppHandler) GetAccountAppsHandler(w http.ResponseWriter, r *http.Request)  {
+func (handler *AppHandler) GetAccountAppsHandler(w http.ResponseWriter, r *http.Request) {
 	key := ParseAuthorizationKey(r)
 	if key == "" || len(key) < 20 {
 		UnAuthorizedResponse(w)
@@ -198,7 +199,7 @@ func (handler *AppHandler) UploadMultipleBlobsHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	errorCount := 0 // how many uploads failed?
+	errorCount := 0   // how many uploads failed?
 	successCount := 0 // how many uploads succeeded?
 
 	// slice to store successfully uploaded
@@ -232,7 +233,7 @@ func (handler *AppHandler) UploadMultipleBlobsHandler(w http.ResponseWriter, r *
 	// put together the response body and respond
 	response := &models.UploadMultipleResponse{SuccessCount: int64(successCount),
 		FailureCount: int64(errorCount), Blobs: blobs}
-	JSON(w, 200, &Response{Error:false, Message:"success", Data: response})
+	JSON(w, 200, &Response{Error: false, Message: "success", Data: response})
 }
 
 // DownloadBlobHandler handles download request
@@ -253,7 +254,7 @@ func (handler *AppHandler) DownloadBlobHandler(w http.ResponseWriter, r *http.Re
 	// along with the cached blob data
 	file, blob, err := handler.repo.DownloadBlob(appName, hash)
 	if err != nil {
-		JSON(w, 500, &Response{Error:true, Message: "failed to download blob"})
+		JSON(w, 500, &Response{Error: true, Message: "failed to download blob"})
 		return
 	}
 
@@ -348,8 +349,7 @@ func (handler *AppHandler) GetAppBlobs(w http.ResponseWriter, r *http.Request) {
 }
 
 func WriteHeaderInfo(w http.ResponseWriter, blob *models.Blob) {
-	headers := map[string]string{"Content-Type": blob.ContentType, "Content-Disposition" :
-	fmt.Sprintf("attachment; filename=%s", blob.Filename)}
+	headers := map[string]string{"Content-Type": blob.ContentType, "Content-Disposition": fmt.Sprintf("attachment; filename=%s", blob.Filename)}
 	for key, val := range headers {
 		w.Header().Add(key, val)
 	}

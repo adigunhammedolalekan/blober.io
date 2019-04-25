@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 )
+
 // AccountHandler handles all account related
 // http requests
 type AccountHandler struct {
@@ -14,7 +15,7 @@ type AccountHandler struct {
 
 // NewAccountHandler creates a new AccountHandler
 func NewAccountHandler(repo *repos.AccountRepository) *AccountHandler {
-	return &AccountHandler{repo:repo}
+	return &AccountHandler{repo: repo}
 }
 
 // CreateNewAccountHandler handles create account requests
